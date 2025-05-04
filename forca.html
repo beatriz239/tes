@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Jogo da Forca da Rapunzel</title>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #ce93d8;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      background-color: white;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+      max-width: 500px;
+      text-align: center;
+      position: relative;
+    }
+
+    h1 {
+      color: #8e24aa;
+      font-size: 36px;
+      margin-bottom: 15px;
+      font-family: 'Baloo 2', cursive;
+    }
+
+    .img-status {
+      width: 220px;
+      border-radius: 12px;
+      margin: 20px 0;
+      transition: all 0.3s;
+    }
+
+    .palavra {
+      font-size: 32px;
+      letter-spacing: 12px;
+      font-weight: 600;
+      margin: 20px 0;
+      color: #5c6bc0;
+    }
+
+    .letras {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin: 20px 0;
+    }
+
+    .letras button {
+      padding: 10px 14px;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+      background-color: #ce93d8;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .letras button:hover {
+      background-color: #ab47bc;
+      color: white;
+    }
+
+    .letras button:disabled {
+      background-color: #ddd;
+      cursor: not-allowed;
+    }
+
+    .info {
+      margin-top: 10px;
+      font-size: 18px;
+      color: #555;
+    }
+
+    .feedback {
+      margin: 15px 0;
+      font-weight: bold;
+      font-size: 18px;
+    }
+
+    .acerto {
+      color: #388e3c;
+    }
+
+    .erro {
+      color: #d32f2f;
+    }
+
+    .botoes-finais {
+      margin-top: 20px;
+    }
+
+    .botoes-finais button {
+      margin: 0 10px;
+      padding: 10px 20px;
+      border-radius: 10px;
+      border: none;
+      background-color: #ffb74d;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .botoes-finais button:hover {
+      background-color: #fb8c00;
+    }
+
+    .popup-vitoria {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #fce4ec;
+      border: 2px solid #f06292;
+      color: #880e4f;
+      padding: 20px;
+      border-radius: 20px;
+      font-weight: bold;
+      font-size: 20px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      animation: aparecer 0.8s ease-out;
+      z-index: 10;
+    }
+
+    @keyframes aparecer {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -20px);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translate(-50%, 0);
+      }
+    }
+
+    #vitoria-banner {
+      display: none;
+      background-color: #fce4ec;
+      border: 2px dashed #ec407a;
+      color: #ad1457;
+      font-size: 20px;
+      font-weight: bold;
+      padding: 15px;
+      margin-top: 20px;
+      border-radius: 15px;
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: scale(0.9);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .final-msg {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+      background-color: #ce93d8;
+      color: #fff;
+      font-size: 28px;
+      font-weight: bold;
+      padding: 30px;
+      animation: aparecerMensagem 1s ease-out;
+    }
+
+    @keyframes aparecerMensagem {
+      0% {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Jogo da Forca da Rapunzel 🌸</h1>
+    <img src="img/Rfeliz.png" alt="Rapunzel" id="imgStatus" class="img-status">
+    <div class="palavra" id="palavra"></div>
+    <div class="letras" id="letras"></div>
+    <div class="info">
+      <p><strong>Dica:</strong> <span id="dica"></span></p>
+      <p>Erros: <span id="erros">0</span> | Tentativas restantes: <span id="tentativas"></span></p>
+    </div>
+    <div class="feedback" id="feedback"></div>
+    <div class="botoes-finais">
+      <button id="btnDica">💡 Dica (2x)</button>
+      <button id="continuar" style="display: none;">🌼 Continuar</button>
+      <button id="recomecar" style="display: none;">🔁 Recomeçar</button>
+    </div>
+    <div id="vitoria-banner">🎉 Você avançou para o próximo desafio da torre! 🌸</div>
+  </div>
+
+  <script>
+    const teclaSom = new Audio('audio/tecla.mp3');
+    const somAcerto = new Audio('audio/acerto.mp3');
+    const somErro = new Audio('audio/erro.mp3');
+
+    const palavras = [
+      { texto: 'rapunzel', dica: 'Princesa com cabelos mágicos e longos' },
+      { texto: 'pascal', dica: 'O camaleão de Rapunzel' },
+      { texto: 'lanternas', dica: 'Lanternas flutuando no céu para Rapunzel' },
+      { texto: 'torre', dica: 'Onde Rapunzel foi mantida em cativeiro' },
+      { texto: 'pincel', dica: 'Rapunzel adora pintar com ele' },
+      { texto: 'flynn', dica: 'O aventureiro que Rapunzel conhece' }
+    ];
+
+    let palavraAtual = {};
+    let letrasCorretas = [];
+    let tentativasRestantes = 6;
+    let erros = 0;
+    let dicasUsadas = 0;
+    let palavrasUsadas = [];
+
+    const palavraEl = document.getElementById('palavra');
+    const letrasEl = document.getElementById('letras');
+    const dicaEl = document.getElementById('dica');
+    const errosEl = document.getElementById('erros');
+    const tentativasEl = document.getElementById('tentativas');
+    const imgStatus = document.getElementById('imgStatus');
+    const feedback = document.getElementById('feedback');
+    const btnContinuar = document.getElementById('continuar');
+    const btnRecomecar = document.getElementById('recomecar');
+    const btnDica = document.getElementById('btnDica');
+    const bannerVitoria = document.getElementById('vitoria-banner');
+
+    function iniciarJogo() {
+      if (palavrasUsadas.length === palavras.length) {
+        mostrarMensagemFinal();
+        return;
+      }
+
+      let disponiveis = palavras.filter(p => !palavrasUsadas.includes(p.texto));
+      palavraAtual = disponiveis[Math.floor(Math.random() * disponiveis.length)];
+      palavrasUsadas.push(palavraAtual.texto);
+
+      letrasCorretas = [];
+      tentativasRestantes = 6;
+      erros = 0;
+      dicasUsadas = 0;
+
+      atualizarJogo();
+      criarBotoes();
+      feedback.textContent = '';
+      bannerVitoria.style.display = 'none';
+      btnContinuar.style.display = 'none';
+      btnRecomecar.style.display = 'none';
+      btnDica.disabled = false;
+      imgStatus.src = 'img/Rfeliz.png';
+    }
+
+    function atualizarJogo() {
+      dicaEl.textContent = palavraAtual.dica;
+      errosEl.textContent = erros;
+      tentativasEl.textContent = tentativasRestantes;
+
+      palavraEl.textContent = palavraAtual.texto.split('').map(letra =>
+        letrasCorretas.includes(letra) ? letra.toUpperCase() : '_'
+      ).join(' ');
+    }
+
+    function criarBotoes() {
+      letrasEl.innerHTML = '';
+      for (let i = 65; i <= 90; i++) {
+        const letra = String.fromCharCode(i);
+        const btn = document.createElement('button');
+        btn.textContent = letra;
+        btn.addEventListener('click', () => {
+          teclaSom.play();
+          verificarLetra(letra);
+        });
+        letrasEl.appendChild(btn);
+      }
+    }
+
+    function verificarLetra(letra) {
+      const letraMin = letra.toLowerCase();
+      const botoes = letrasEl.querySelectorAll('button');
+      botoes.forEach(btn => {
+        if (btn.textContent === letra) btn.disabled = true;
+      });
+
+      if (palavraAtual.texto.includes(letraMin)) {
+        if (!letrasCorretas.includes(letraMin)) {
+          letrasCorretas.push(letraMin);
+        }
+        feedback.textContent = `Acertou a letra ${letra}! 🌼`;
+        feedback.className = 'feedback acerto';
+        imgStatus.src = 'img/Rfeliz.png';
+      } else {
+        tentativasRestantes--;
+        erros++;
+        feedback.textContent = `Ops! A letra ${letra} não está na palavra. 😕`;
+        feedback.className = 'feedback erro';
+        imgStatus.src = 'img/Rtriste.png';
+      }
+
+      atualizarJogo();
+      checarFimDeJogo();
+    }
+
+    function checarFimDeJogo() {
+      const palavraCompleta = palavraAtual.texto.split('').every(letra => letrasCorretas.includes(letra));
+      if (palavraCompleta) {
+        somAcerto.play();
+        if (palavrasUsadas.length === palavras.length) {
+          setTimeout(mostrarMensagemFinal, 1200);
+        } else {
+          bannerVitoria.style.display = 'block';
+          btnContinuar.style.display = 'block';
+          btnRecomecar.style.display = 'block';
+          btnDica.disabled = true;
+        }
+      } else if (tentativasRestantes === 0) {
+        feedback.textContent = 'Você perdeu! Tente novamente! 💔';
+        feedback.className = 'feedback erro';
+        btnRecomecar.style.display = 'block';
+      }
+    }
+
+    function usarDica() {
+      const letrasNaoReveladas = palavraAtual.texto.split('').filter(letra => !letrasCorretas.includes(letra));
+      const letraAleatoria = letrasNaoReveladas[Math.floor(Math.random() * letrasNaoReveladas.length)];
+      letrasCorretas.push(letraAleatoria);
+      dicasUsadas++;
+      atualizarJogo();
+    }
+
+    function mostrarMensagemFinal() {
+      document.body.innerHTML = `
+        <div class="final-msg">
+          🎉 Parabéns! Você completou todos os desafios da torre da Rapunzel! 🌸<br><br>
+          Obrigado por jogar!
+        </div>
+      `;
+    }
+
+    btnDica.addEventListener('click', usarDica);
+    btnRecomecar.addEventListener('click', iniciarJogo);
+    btnContinuar.addEventListener('click', iniciarJogo);
+
+    iniciarJogo();
+
+    document.addEventListener('keydown', function(event) {
+      const tecla = event.key.toUpperCase();
+      if (tecla.match(/[A-Z]/)) {
+        teclaSom.play();
+        verificarLetra(tecla);
+      }
+    });
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Jogo da Velha - Ariel</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(135deg, #ffedfe, #ff99cc); /* Fundo suave sem transparência */
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .container {
+      background: linear-gradient(to bottom right, #c4e3f6, #1e7fa6); /* Fundo sólido e sem transparência */
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.4);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      width: 95%;
+      max-width: 800px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .container img.ariel-logo {
+      width: 180px;
+      margin-bottom: 10px;
+    }
+
+    .tabuleiro {
+      display: grid;
+      grid-template-columns: repeat(3, 120px);
+      grid-template-rows: repeat(3, 120px);
+      gap: 10px;
+    }
+
+    .casa {
+      width: 120px;
+      height: 120px;
+      background-color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .casa:hover {
+      transform: scale(1.05);
+      background-color: #ffffff;
+    }
+
+    .casa img {
+      width: 70%;
+      height: auto;
+    }
+
+    .placar {
+      text-align: center;
+      font-size: 18px;
+      color: #fff;
+    }
+
+    .placar span {
+      color: #ff3c64;
+    }
+
+    .resultado {
+      font-size: 26px;
+      font-weight: bold;
+      color: #fff;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 18px;
+      border: none;
+      border-radius: 10px;
+      background-color: #ff3c64;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+      box-shadow: 0 0 10px #00000055;
+    }
+
+    button:hover {
+      background-color: #e22f58;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <img src="img/ariel.png" alt="Ariel" class="ariel-logo">
+
+    <div class="tabuleiro" id="tabuleiro"></div>
+
+    <div class="resultado" id="resultado">RESULTADO:</div>
+
+    <div class="placar">
+      🐟 Peixe: <span id="pontosX">0</span> | 🦀 Caranguejo: <span id="pontosO">0</span> | Velha: <span id="pontosVelha">0</span>
+    </div>
+
+    <button onclick="novoJogo()">Novo Jogo</button>
+  </div>
+
+  <audio autoplay loop>
+    <source src="audio/ariel.mp3" type="audio/mpeg">
+  </audio>
+
+  <script>
+    let casas = Array(9).fill(null);
+    let vez = "X";
+    let pontosX = 0, pontosO = 0, pontosVelha = 0;
+    const tabuleiro = document.getElementById("tabuleiro");
+    const resultado = document.getElementById("resultado");
+
+    const imagens = {
+      X: "img/peixe.png",
+      O: "img/caranguejo.png"
+    };
+
+    function renderizar() {
+      tabuleiro.innerHTML = "";
+      casas.forEach((valor, index) => {
+        const div = document.createElement("div");
+        div.classList.add("casa");
+        if (valor && valor !== '-') {
+          const img = document.createElement("img");
+          img.src = imagens[valor];
+          img.alt = valor === "X" ? "Peixe" : "Caranguejo";
+          div.appendChild(img);
+        } else if (valor === null) {
+          div.addEventListener("click", () => jogar(index));
+        }
+        tabuleiro.appendChild(div);
+      });
+    }
+
+    function jogar(index) {
+      if (casas[index]) return;
+      casas[index] = vez;
+      if (verificaVitoria()) {
+        if (vez === "X") pontosX++;
+        else pontosO++;
+        resultado.innerText = `${vez === "X" ? "🐟 Peixe" : "🦀 Caranguejo"} venceu!`;
+        atualizarPlacar();
+        bloquearTabuleiro();
+      } else if (casas.every(c => c)) {
+        pontosVelha++;
+        resultado.innerText = "Deu velha!";
+        atualizarPlacar();
+      } else {
+        vez = vez === "X" ? "O" : "X";
+      }
+      renderizar();
+    }
+
+    function verificaVitoria() {
+      const linhas = [
+        [0,1,2], [3,4,5], [6,7,8],
+        [0,3,6], [1,4,7], [2,5,8],
+        [0,4,8], [2,4,6]
+      ];
+      return linhas.some(([a,b,c]) => casas[a] && casas[a] === casas[b] && casas[a] === casas[c]);
+    }
+
+    function atualizarPlacar() {
+      document.getElementById("pontosX").innerText = pontosX;
+      document.getElementById("pontosO").innerText = pontosO;
+      document.getElementById("pontosVelha").innerText = pontosVelha;
+    }
+
+    function bloquearTabuleiro() {
+      casas = casas.map(c => c || "-");
+    }
+
+    function novoJogo() {
+      casas = Array(9).fill(null);
+      vez = "X";
+      resultado.innerText = "RESULTADO:";
+      renderizar();
+    }
+
+    renderizar();
+  </script>
+</body>
+</html>
